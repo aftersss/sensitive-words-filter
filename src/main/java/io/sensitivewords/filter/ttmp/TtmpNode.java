@@ -1,6 +1,7 @@
 package io.sensitivewords.filter.ttmp;
 
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 数据缓存节点
@@ -8,7 +9,7 @@ import java.util.HashSet;
 class TtmpNode {
 
 	// 保存所有脏词
-	private final HashSet<String> hash = new HashSet<>();
+	private final Set<String> hash = new HashSet<>();
 
 	// 是否是脏词中首字符
 	private byte[] fastCheck = new byte[Character.MAX_VALUE];
@@ -25,7 +26,7 @@ class TtmpNode {
 	// 脏词中长度最小词的length
 	private int minWordLength = Integer.MAX_VALUE;
 
-	public HashSet<String> getHash() {
+	public Set<String> getHash() {
 		return hash;
 	}
 

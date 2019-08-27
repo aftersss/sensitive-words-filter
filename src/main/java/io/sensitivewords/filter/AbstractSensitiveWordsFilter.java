@@ -6,9 +6,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 抽象敏感词过滤执行器
+ * 抽象过滤脱敏接口实现
  */
-public abstract class AbstractFilterExecutor {
+public abstract class AbstractSensitiveWordsFilter implements SensitiveWordsFilter {
 
 	private static final String HTML_HIGHLIGHT = "<font color='red'>%s</font>";
 
@@ -34,12 +34,14 @@ public abstract class AbstractFilterExecutor {
 	 */
 	protected abstract boolean processor(boolean partMatch, String content, Callback callback);
 
+	@Override
 	public boolean contains(String content) {
 		return processor(true, content, word -> {
 			return true; // 有敏感词立即返回
 		});
 	}
 
+	@Override
 	public String getOneWord(String content) {
 		final AtomicReference<String> ref = new AtomicReference<>();
 
@@ -51,6 +53,7 @@ public abstract class AbstractFilterExecutor {
 		return ref.get();
 	}
 
+	@Override
 	public Set<String> getWords(boolean partMatch, String content) {
 		final Set<String> words = new HashSet<>();
 
@@ -62,6 +65,7 @@ public abstract class AbstractFilterExecutor {
 		return words;
 	}
 
+	@Override
 	public String highlight(String content, String template) {
 		if (template == null) {
 			template = HTML_HIGHLIGHT;
@@ -77,6 +81,7 @@ public abstract class AbstractFilterExecutor {
 		return content;
 	}
 
+	@Override
 	public String filter(String content, char replaceChar) {
 		Set<String> words = this.getWords(true, content);
 
@@ -97,14 +102,5 @@ public abstract class AbstractFilterExecutor {
 
 		return sb.toString();
 	}
-
-	/**
-	 * 添加敏感词
-	 * @param word 敏感词
-	 * @return 添加是否成功
-	 */
-	protected abstract boolean put(String word);
-
-
 
 }
