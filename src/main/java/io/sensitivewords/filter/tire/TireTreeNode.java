@@ -1,30 +1,28 @@
 package io.sensitivewords.filter.tire;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
- * 多叉树模型
+ * 字典树模型
  */
 class TireTreeNode {
 
 	private final char _char;
 	private volatile boolean word;
-	private volatile List<TireTreeNode> childes;
+	private volatile TireTreeNode[] childes;
 
 	public TireTreeNode(char _char) {
 		this._char = _char;
 	}
 	
 	public boolean isLeaf() {
-		List<TireTreeNode> childesTemp = childes;
-		return (childesTemp == null || childesTemp.isEmpty());
+		TireTreeNode[] childesTemp = childes;
+		return (childesTemp == null || childesTemp.length == 0);
 	}
 	
-	public char getChar() {
-		return _char;
-	}
-
 	public boolean isWord() {
 		return word;
 	}
@@ -34,9 +32,10 @@ class TireTreeNode {
 	}
 	
 	public synchronized void addChildIfNotPresent(TireTreeNode child) {
-		List<TireTreeNode> childesTemp = childes;
+		TireTreeNode[] childesTemp = childes;
 		if (childesTemp != null) {
-			if (childesTemp.stream().anyMatch(node -> node._char == child._char)) {
+			int i = Arrays.binarySearch(childesTemp, child, Comparator.comparingInt(o -> o._char));
+			if (i >= 0) {
 				return;
 			}
 		}
@@ -45,19 +44,19 @@ class TireTreeNode {
 		if (childesTemp == null) {
 			childesCopyOnWrite = new ArrayList<>();
 		} else {
-			childesCopyOnWrite = new ArrayList<>(childesTemp);
+			childesCopyOnWrite = new ArrayList<>(Arrays.asList(childesTemp));
 		}
 		childesCopyOnWrite.add(child);
-		this.childes = childesCopyOnWrite;
+		childesCopyOnWrite.sort(Comparator.comparingInt(o -> o._char));
+		this.childes = childesCopyOnWrite.toArray(new TireTreeNode[childesCopyOnWrite.size()]);
 	}
 
 	public TireTreeNode findChild(char _char) {
-		List<TireTreeNode> childesTemp = childes;
+		TireTreeNode[] childesTemp = childes;
 		if (childesTemp != null) {
-			for (TireTreeNode item : childesTemp) {
-				if (item.getChar() == _char) {
-					return item;
-				}
+			int i = Arrays.binarySearch(childesTemp, new TireTreeNode(_char), Comparator.comparingInt(o -> o._char));
+			if (i >= 0) {
+				return childesTemp[i];
 			}
 		}
 		return null;

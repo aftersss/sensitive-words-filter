@@ -7,11 +7,11 @@
 
 目前`sensitive-words-filter`提供了如下几种算法脱敏支持：
 
-* `DFA("dfa算法")` 综合性能比较高，表现突出，过滤效果好
-* `TIRE("tire树算法"),` 大文本过滤效率稍低
-* `HASH_BUCKET("二级hash算法"),` 综合性能中等，实现简单易懂
-* `DAT("双数组算法"),` 小文本过滤效果突出，实现超简单
-* `TTMP("ttmp算法"),` 综合性能突出，性能稍低占有内存大，但效率快，匹配有漏词情况
+* `TIRE` 算法表现良好，在内存占用和速度上比较均衡，适用情况比较广，比较实用；
+* `HASH_BUCKET` 算法表现良好，在内存占用和速度上比较均衡；
+* `DFA`算法用的内存最多，但速度最快.
+* `DAT`算法用的内存最少，但速度最慢.
+* `TTMP` 存在漏词的问题, 不建议使用。
 
 以上每一种算法都有自己的特点，以供选择；
 
@@ -19,16 +19,13 @@
 
 ## 2、使用方法
 
-> 提供两种方法，一种直接运行敏感词执行器`AbstractFilterExecutor`的实现类，该类的实现类是单例模式，提供常用的**判词、高亮、替换、查词**等接口；
-
-
-下面以 `DFA`算法实现类为例演示
+下面以`TIRE`算法实现类为例演示
 
 ### 2.1、初始化并添加敏感词
 > put方法用于添加敏感词
 
 ```java
-SensitiveWordsFilter filter = SensitiveWordsFilterFactory.newSensitiveWordsFilter(SensitiveWordsFilterFactory.SensitiveWordsFilterType.DFA);
+SensitiveWordsFilter filter = SensitiveWordsFilterFactory.newSensitiveWordsFilter(SensitiveWordsFilterFactory.SensitiveWordsFilterType.TIRE);
 filter.put("美国人");
 filter.put("美国男人");
 filter.put("美国人民");
@@ -97,7 +94,6 @@ public String filter(String content, char replaceChar) ;
 System.out.println(filter.filter(content, '*'));
 ```
 
-
 + **运行结果：**
 ```
 我们***都是好人，在他们**有男人和**。****很高，***民经常吃饭。
@@ -132,7 +128,6 @@ System.out.println(filter.highlight(content, "<font color='red'>%s</font>"));
 我们<font color='red'>美国人</font>都是好人，在他们<font color='red'>中间</font>有男人和<font color='red'>女人</font>。<font color='red'>美国男人</font>很高，<font color='red'>美国人</font>民经常吃饭。
 ```
 
-
 ### 2.5、是否存在敏感词
 
 > 判断一段文本是否包含敏感词，若包含立即返回true，否则 false
@@ -150,7 +145,6 @@ public boolean contains(String content);
 
 + **运行示例：**
 
-
 ```java
 System.out.println(filter.contains(true, content));
 ```
@@ -161,24 +155,40 @@ System.out.println(filter.contains(true, content));
 true
 ```
 
+## 3、各算法内存占用测试
 
-## 3、各算法实现测试说明
-
-> 针对各算法进行测试，分别测试 匹配文本 344字符、5519字符、11.304.959字符
+> 针对各算法进行测试，对每种算法分别放入23000条敏感词数据（共计283KB），观察堆内存使用。
 
 + **测试结果**
 
-| 算法接口                                     |       过滤字符数       |  耗时(毫秒)   |    内存消耗（KB）     |
-| :--------------------------------------- | :---------------: | :-------: | :-------------: |
-| `DFA("dfa算法", DfaFilter.class)`          | 344/5519/11304959 |  5/7/241  | 3276/3276/42470 |
-| `TIRE("tire树算法", TireTreeFilter.class) ` | 344/5519/11304959 | 1/9/12413 | 1638/1638/47934 |
-| `HASH_BUCKET("hash桶算法")`                 | 344/5519/11304959 |  0/4/659  | 1638/1638/79269 |
-| `DAT("双数组算法", DatFilter.class)`          | 344/5519/11304959 |  1/4/720  | 819/819/424066  |
-| `TTMP("ttmp算法", TtmpFilter.class)`       | 344/5519/11304959 |  0/2/226  | 819/819/567125  |
+| 算法                                  |   内存消耗（MB）     |
+| :--------------------------------------- | :-------------: |
+| `DFA("dfa算法")`            | 11MB |
+| `TIRE("tire树算法") `       | 4MB |
+| `HASH_BUCKET("hash桶算法")` | 3.2MB |
+| `DAT("双数组算法")`          | 1.9M  |
+| `TTMP("ttmp算法")`          | 2MB  |
+| `HashSet(每个敏感词简单放入HashSet中，作为对比)`  | 2MB  |
 
-在小于5000字左右，各算法差距不大。但字符量大的情况下，差距明显。
+## 4、各算法性能测试说明
 
-## 4、总结
-+ `TTMP`算法用的内存最多，但速度最快，但是存在一个漏词的问题。
-+ `DFA`算法表现良好，各方面都不错，比较实用，特别在大量文本情况下很稳定。
-+ `TIRE`算法在大量文本情况下，效率稍低。可以优化下查找速度。
+> 针对各算法进行测试,对每种算法分别放入23000条敏感词数据（共计283KB），然后分别测试 匹配文本 600字符、5000字符、20000字符时的性能(这些文本均不会命中敏感词)
+
++ **测试结果**
+
+| 算法接口                                     |       过滤字符数       |  执行1000次的耗时(毫秒)   |    
+| :---------------------------------- | :---------------: | :-------: |
+| `DFA("dfa算法")`                           | 600/5000/20000 |  34/346/915  |  
+| `TIRE("tire树算法")`                       | 600/5000/20000 | 148/2204/7728 | 
+| `HASH_BUCKET("hash桶算法")`                 | 600/5000/20000 |  116/1362/5509  | 
+| `DAT("双数组算法")`                          | 600/5000/20000 |  2094/16720/48896  | 
+| `TTMP("ttmp算法")`                          | 600/5000/20000 |  44/602/1569  | 
+| `HashSet(简单地一个个判断contains，作为比较)`   | 600/5000/20000 |  5952/39409/129772  | 
+
+## 5、总结
++ `DFA`算法用的内存最多，但速度最快.
++ `DAT`算法用的内存最少，但速度最慢.
++ `HASH_BUCKET`算法表现良好，在内存占用和速度上比较均衡，比较实用，`TIRE`算法也不错;建议选用HASH_BUCKET或者TIRE算法.
++ `TTMP` 存在漏词的问题, 不建议使用。
+
+> 请根据你的使用场景选择不同的算法

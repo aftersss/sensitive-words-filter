@@ -25,7 +25,7 @@ public class SensitiveWordsFilterFactory {
 		DFA(DfaFilter.class),
 		TIRE(TireTreeFilter.class),
 		DAT(DatFilter.class),
-		BUCKET(HashBucketFilter.class),
+		HASH_BUCKET(HashBucketFilter.class),
 		TTMP(TtmpFilter.class);
 
 		private Class<? extends SensitiveWordsFilter> filterClass;

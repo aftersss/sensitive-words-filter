@@ -19,8 +19,8 @@ public class SensitiveWordsFilterTest extends TestCase {
 		filter = SensitiveWordsFilterFactory.newSensitiveWordsFilter(SensitiveWordsFilterFactory.SensitiveWordsFilterType.TIRE);
 		testFilterInner(filter, SensitiveWordsFilterFactory.SensitiveWordsFilterType.TIRE);
 
-		filter = SensitiveWordsFilterFactory.newSensitiveWordsFilter(SensitiveWordsFilterFactory.SensitiveWordsFilterType.BUCKET);
-		testFilterInner(filter, SensitiveWordsFilterFactory.SensitiveWordsFilterType.BUCKET);
+		filter = SensitiveWordsFilterFactory.newSensitiveWordsFilter(SensitiveWordsFilterFactory.SensitiveWordsFilterType.HASH_BUCKET);
+		testFilterInner(filter, SensitiveWordsFilterFactory.SensitiveWordsFilterType.HASH_BUCKET);
 
 		filter = SensitiveWordsFilterFactory.newSensitiveWordsFilter(SensitiveWordsFilterFactory.SensitiveWordsFilterType.DAT);
 		testFilterInner(filter, SensitiveWordsFilterFactory.SensitiveWordsFilterType.DAT);
@@ -84,7 +84,7 @@ public class SensitiveWordsFilterTest extends TestCase {
 
 		content = "中国人民很多屌人的";
 		Assert.assertTrue(filter.getWords(true, content).contains("屌"));
-		if(SensitiveWordsFilterFactory.SensitiveWordsFilterType.BUCKET != type) {
+		if(SensitiveWordsFilterFactory.SensitiveWordsFilterType.HASH_BUCKET != type) {
 			Assert.assertTrue(!filter.getWords(true, content).contains("屌人"));
 		}
 		Assert.assertTrue(filter.getWords(false, content).contains("屌"));

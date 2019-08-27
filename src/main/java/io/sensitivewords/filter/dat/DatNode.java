@@ -1,5 +1,6 @@
 package io.sensitivewords.filter.dat;
 
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,13 +10,13 @@ import java.util.Set;
 class DatNode {
 
 	//脏字库
-    private final Set<Character> chars = new HashSet<>();
+    private BitSet charsBitSet = new BitSet(Character.MAX_VALUE);
     
     //敏感词库
     private final Set<String> words = new HashSet<>();
 
-	public Set<Character> getChars() {
-		return chars;
+	public BitSet getCharsBitSet() {
+		return charsBitSet;
 	}
 
 	public Set<String> getWords() {

@@ -11,6 +11,7 @@ import org.apache.commons.lang.StringUtils;
 public class DatFilter extends AbstractSensitiveWordsFilter {
 
 	private final DatNode datNode = new DatNode();
+	private int maxWordLength;//最长的敏感词的长度
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 	@Override
@@ -26,8 +27,9 @@ public class DatFilter extends AbstractSensitiveWordsFilter {
 			datNode.getWords().add(word);
 
 			for (Character character : word.toCharArray()) {
-				datNode.getChars().add(character);
+				datNode.getCharsBitSet().set(character);
 			}
+			maxWordLength = Math.max(maxWordLength, word.length());
 		} finally {
 			lock.writeLock().unlock();
 		}
@@ -48,7 +50,7 @@ public class DatFilter extends AbstractSensitiveWordsFilter {
 			for (int i = 0; i < content.length(); i++) {
 				Character wordChar = content.charAt(i);
 				// 判断是否属于脏字符
-				if (!datNode.getChars().contains(wordChar)) {
+				if (!datNode.getCharsBitSet().get(wordChar)) {
 					continue;
 				}
 
@@ -64,10 +66,10 @@ public class DatFilter extends AbstractSensitiveWordsFilter {
 				}
 
 				int j = i + 1;
-				while (j < content.length()) {
+				while (j < content.length() && (j + 1 - i) <= maxWordLength) {
 					// 判断下一个字符是否属于脏字符
 					wordChar = content.charAt(j);
-					if (!datNode.getChars().contains(wordChar)) {
+					if (!datNode.getCharsBitSet().get(wordChar)) {
 						break;
 					}
 

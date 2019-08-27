@@ -8,18 +8,26 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import io.sensitivewords.filter.AbstractSensitiveWordsFilter;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * hash bucket 脱敏过滤算法实现
  */
 public class HashBucketFilter extends AbstractSensitiveWordsFilter {
 
-	private Map<Character, Map<Integer, Set<String>>> wordNodes = new HashMap<>();
+	private static final Logger logger = LoggerFactory.getLogger(HashBucketFilter.class);
+
+	private final Map<Character, Map<Short, Set<String>>> wordNodes = new HashMap<>();
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 	@Override
 	public boolean put(String word) {
 		if (StringUtils.isBlank(word)) {
+			return false;
+		}
+		if (word.length() > Short.MAX_VALUE) {
+			logger.warn("word's length must be less than " + Short.MAX_VALUE);
 			return false;
 		}
 
@@ -29,16 +37,17 @@ public class HashBucketFilter extends AbstractSensitiveWordsFilter {
 		try {
 			char firstChar = word.charAt(0);
 
-			Map<Integer, Set<String>> buckets = wordNodes.get(firstChar);
+			Map<Short, Set<String>> buckets = wordNodes.get(firstChar);
 			if (buckets == null) {
 				buckets = new HashMap<>();
 				wordNodes.put(firstChar, buckets);
 			}
 
-			Set<String> words = buckets.get(word.length());
+			short wordLength = (short)word.length();
+			Set<String> words = buckets.get(wordLength);
 			if (words == null) {
 				words = new HashSet<>();
-				buckets.put(word.length(), words);
+				buckets.put(wordLength, words);
 			}
 			words.add(word);
 		} finally {
@@ -66,9 +75,9 @@ public class HashBucketFilter extends AbstractSensitiveWordsFilter {
 					continue;
 				}
 
-				Map<Integer, Set<String>> buckets = wordNodes.get(wordChar);
-				Set<Integer> sizes = buckets.keySet();
-				for (int size : sizes) {
+				Map<Short, Set<String>> buckets = wordNodes.get(wordChar);
+				Set<Short> sizes = buckets.keySet();
+				for (short size : sizes) {
 					if (i + size > content.length()) {
 						continue;
 					}
