@@ -9,10 +9,10 @@ import java.util.Set;
 class DatNode {
 
 	//脏字库
-    private Set<Character> chars = new HashSet<>();
+    private final Set<Character> chars = new HashSet<>();
     
     //敏感词库
-    private Set<String> words = new HashSet<>();
+    private final Set<String> words = new HashSet<>();
 
 	public Set<Character> getChars() {
 		return chars;

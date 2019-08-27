@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import io.sensitivewords.filter.AbstractFilterExecutor;
 import org.apache.commons.lang.StringUtils;
@@ -14,71 +15,82 @@ import org.apache.commons.lang.StringUtils;
 final class HashBucketFilterExecutor extends AbstractFilterExecutor {
 
 	private HashMap<Character, Map<Integer, Set<String>>> wordNodes = new HashMap<>();
+	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 	@Override
-	public synchronized boolean put(String word) {
+	public boolean put(String word) {
 		if (StringUtils.isBlank(word)) {
 			return false;
 		}
 		
 		word = StringUtils.trim(word);
 
-		char firstChar = word.charAt(0);
-		
-		Map<Integer, Set<String>> buckets = wordNodes.get(firstChar);
-		if (buckets == null) {
-			buckets = new HashMap<>();
-			wordNodes.put(firstChar, buckets);
+		lock.writeLock().lock();
+		try {
+			char firstChar = word.charAt(0);
+
+			Map<Integer, Set<String>> buckets = wordNodes.get(firstChar);
+			if (buckets == null) {
+				buckets = new HashMap<>();
+				wordNodes.put(firstChar, buckets);
+			}
+
+			Set<String> words = buckets.get(word.length());
+			if (words == null) {
+				words = new HashSet<>();
+				buckets.put(word.length(), words);
+			}
+			words.add(word);
+		} finally {
+			lock.writeLock().unlock();
 		}
-		
-		Set<String> words = buckets.get(word.length());
-		if (words == null) {
-			words = new HashSet<>();
-			buckets.put(word.length(), words);
-		}
-		words.add(word);
 		
 		return true;
 	}
 
 	@Override
-	protected synchronized boolean processor(boolean partMatch, String content, Callback callback) {
+	protected boolean processor(boolean partMatch, String content, Callback callback) {
 		if (StringUtils.isBlank(content)) {
 			return false;
 		}
 		
 		content = StringUtils.trim(content);
 
-		for (int i = 0; i < content.length(); i++) {
-            Character wordChar = content.charAt(i);
-            
-            // 判断是否属于脏字符
-            if (!wordNodes.containsKey(wordChar)) {
-                continue;
-            }
-            
-            Map<Integer, Set<String>> buckets = wordNodes.get(wordChar);
-            Set<Integer> sizes = buckets.keySet();
-            for (int size : sizes) {
-            	if (i + size > content.length()) {
-            		continue;
-            	}
-            	
-            	String word = content.substring(i, i + size);
-            	Set<String> words = buckets.get(size);
-            	// 判断是否是脏词
-                if (words.contains(word)) {
-                	if (callback.call(word)) {
-                		return true;
-                	}
+		lock.readLock().lock();
+		try {
+			for (int i = 0; i < content.length(); i++) {
+				Character wordChar = content.charAt(i);
 
-                	if (partMatch) {
-                		i += (word.length() - 1);//最后还有个i++，所以这里要-1
-                	} 
-                }
-            }
-        }
-		
+				// 判断是否属于脏字符
+				if (!wordNodes.containsKey(wordChar)) {
+					continue;
+				}
+
+				Map<Integer, Set<String>> buckets = wordNodes.get(wordChar);
+				Set<Integer> sizes = buckets.keySet();
+				for (int size : sizes) {
+					if (i + size > content.length()) {
+						continue;
+					}
+
+					String word = content.substring(i, i + size);
+					Set<String> words = buckets.get(size);
+					// 判断是否是脏词
+					if (words.contains(word)) {
+						if (callback.call(word)) {
+							return true;
+						}
+
+						if (partMatch) {
+							i += (word.length() - 1);//最后还有个i++，所以这里要-1
+						}
+					}
+				}
+			}
+		} finally {
+			lock.readLock().unlock();
+		}
+
 		return false;
 	}
 }

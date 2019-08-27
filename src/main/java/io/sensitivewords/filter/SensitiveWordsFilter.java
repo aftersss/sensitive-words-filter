@@ -3,7 +3,7 @@ package io.sensitivewords.filter;
 import java.util.Set;
 
 /**
- * 敏感词库接口定义
+ * 敏感词库接口定义,所有实现均是线程安全的，可以随时添加敏感词
  */
 public interface SensitiveWordsFilter {
 

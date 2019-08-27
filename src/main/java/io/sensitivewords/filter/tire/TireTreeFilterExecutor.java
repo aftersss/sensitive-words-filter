@@ -19,13 +19,6 @@ final class TireTreeFilterExecutor extends AbstractFilterExecutor {
 
 		word = StringUtils.trim(word);
 
-//		char firstChar = word.charAt(0);
-//		TireTreeNode node = tireTreeNode.findChild(firstChar);
-//		if (node == null) {
-//			node = new TireTreeNode(firstChar);
-//			tireTreeNode.addChildIfNotPresent(node);
-//		}
-
 		TireTreeNode node = rootNode;
 		for (int i = 0; i < word.length(); i++) {
 			char nextChar = word.charAt(i); // 转换成char型
