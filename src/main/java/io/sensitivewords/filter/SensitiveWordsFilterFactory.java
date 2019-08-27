@@ -21,11 +21,34 @@ public class SensitiveWordsFilterFactory {
 		return type.makeInstance();
 	}
 
+	/**
+	 * 敏感词过滤算法枚举类，建议使用TIRE算法
+	 */
 	public enum SensitiveWordsFilterType {
-		DFA(DfaFilter.class),
+
+		/**
+		 * 字典树敏感词过滤算法，算法表现良好，在内存占用和速度上比较均衡，适用情况比较广，比较实用；
+		 */
 		TIRE(TireTreeFilter.class),
-		DAT(DatFilter.class),
+
+		/**
+		 * hash桶敏感词过滤算法， 算法表现良好，在内存占用和速度上比较均衡；
+		 */
 		HASH_BUCKET(HashBucketFilter.class),
+
+		/**
+		 * dfa敏感词过滤算法， 算法用的内存最多，但速度最快。
+		 */
+		DFA(DfaFilter.class),
+
+		/**
+		 * 双数组敏感词过滤算法， 算法用的内存最少，但速度最慢.
+		 */
+		DAT(DatFilter.class),
+
+		/**
+		 * ttmp敏感词过滤算法， 存在漏词的问题, 不建议使用。
+		 */
 		TTMP(TtmpFilter.class);
 
 		private Class<? extends SensitiveWordsFilter> filterClass;
