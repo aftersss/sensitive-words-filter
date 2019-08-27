@@ -8,7 +8,7 @@ import java.util.HashSet;
 class TtmpNode {
 
 	// 保存所有脏词
-	private HashSet<String> hash = new HashSet<>();
+	private final HashSet<String> hash = new HashSet<>();
 
 	// 是否是脏词中首字符
 	private byte[] fastCheck = new byte[Character.MAX_VALUE];
@@ -16,9 +16,9 @@ class TtmpNode {
 	private byte[] fastLength = new byte[Character.MAX_VALUE];
 
 	// 判断是否是一个字的脏词
-	private boolean[] charCheck = new boolean[Character.MAX_VALUE];
+	private final boolean[] charCheck = new boolean[Character.MAX_VALUE];
 	// 记录所有脏字中的停止字符
-	private boolean[] endCheck = new boolean[Character.MAX_VALUE];
+	private final boolean[] endCheck = new boolean[Character.MAX_VALUE];
 
 	// 脏词中长度最大词的length
 	private int maxWordLength = 0;
@@ -27,10 +27,6 @@ class TtmpNode {
 
 	public HashSet<String> getHash() {
 		return hash;
-	}
-
-	public void setHash(HashSet<String> hash) {
-		this.hash = hash;
 	}
 
 	public byte[] getFastCheck() {
@@ -69,15 +65,7 @@ class TtmpNode {
 		return charCheck;
 	}
 
-	public void setCharCheck(boolean[] charCheck) {
-		this.charCheck = charCheck;
-	}
-
 	public boolean[] getEndCheck() {
 		return endCheck;
-	}
-
-	public void setEndCheck(boolean[] endCheck) {
-		this.endCheck = endCheck;
 	}
 }

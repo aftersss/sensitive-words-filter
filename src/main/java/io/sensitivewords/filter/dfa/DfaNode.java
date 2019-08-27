@@ -2,7 +2,6 @@ package io.sensitivewords.filter.dfa;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * dfa多叉树模型
@@ -61,17 +60,6 @@ class DfaNode {
 		}
 
 		return childesTemp.get(_char);
-	}
-
-	public void print(DfaNode node) {
-		System.out.println(node.getChar());
-		Map<Character, DfaNode> childesTemp = node.childes;
-		if (childesTemp != null) {
-			Set<Character> keys = childesTemp.keySet();
-			for (Character _char: keys) {
-				print(childesTemp.get(_char));
-			}
-		}
 	}
 
 	@Override
