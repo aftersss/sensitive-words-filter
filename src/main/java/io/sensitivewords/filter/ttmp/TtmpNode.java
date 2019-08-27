@@ -1,11 +1,11 @@
-package io.sensitivewords.filter.ttmp.executor;
+package io.sensitivewords.filter.ttmp;
 
 import java.util.HashSet;
 
 /**
  * 数据缓存节点
  */
-public class TtmpCacheNode {
+class TtmpNode {
 
 	// 保存所有脏词
 	private HashSet<String> hash = new HashSet<>();

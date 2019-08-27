@@ -1,4 +1,4 @@
-package io.sensitivewords.filter.bucket.executor;
+package io.sensitivewords.filter.bucket;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,7 +11,7 @@ import org.apache.commons.lang.StringUtils;
 /**
  * hash bucket 脱敏过滤算法实现
  */
-public final class HashBucketFilterExecutor extends AbstractFilterExecutor {
+final class HashBucketFilterExecutor extends AbstractFilterExecutor {
 
 	private HashMap<Character, Map<Integer, Set<String>>> wordNodes = new HashMap<>();
 

@@ -1,4 +1,4 @@
-package io.sensitivewords.filter.dfa.executor;
+package io.sensitivewords.filter.dfa;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,8 +7,7 @@ import java.util.Set;
 /**
  * dfa多叉树模型
  */
-public class DfaNode {
-
+class DfaNode {
 	private final char _char;
 	/**
 	 * 如果为true表示是敏感词的最后一个单词

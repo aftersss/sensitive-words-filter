@@ -1,4 +1,4 @@
-package io.sensitivewords.filter.dat.exectuor;
+package io.sensitivewords.filter.dat;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -7,9 +7,9 @@ import io.sensitivewords.filter.AbstractFilterExecutor;
 /**
  * 双数组算法过滤敏感词
  */
-public final class DatFilterExecutor extends AbstractFilterExecutor {
+final class DatFilterExecutor extends AbstractFilterExecutor {
 
-	private DatCacheNode datCacheNode = new DatCacheNode();
+	private DatNode datNode = new DatNode();
 
 	@Override
 	public boolean put(String word) {
@@ -19,10 +19,10 @@ public final class DatFilterExecutor extends AbstractFilterExecutor {
 		
 		word = StringUtils.trim(word);
 
-		datCacheNode.getWords().add(word);
+		datNode.getWords().add(word);
 		
         for (Character character : word.toCharArray()) {
-        	datCacheNode.getChars().add(character);
+        	datNode.getChars().add(character);
         }
         
 		return true;
@@ -39,12 +39,12 @@ public final class DatFilterExecutor extends AbstractFilterExecutor {
 		for (int i = 0; i < content.length(); i++) {
             Character wordChar = content.charAt(i);
             // 判断是否属于脏字符
-            if (!datCacheNode.getChars().contains(wordChar)) {
+            if (!datNode.getChars().contains(wordChar)) {
                 continue;
             }
 
 			String str = wordChar.toString();
-			if (datCacheNode.getWords().contains(str)) {
+			if (datNode.getWords().contains(str)) {
 				if (callback.call(str)) {
 					return true;
 				}
@@ -58,13 +58,13 @@ public final class DatFilterExecutor extends AbstractFilterExecutor {
             while (j < content.length()) {
             	// 判断下一个字符是否属于脏字符
             	wordChar = content.charAt(j);
-                if (!datCacheNode.getChars().contains(wordChar)) {
+                if (!datNode.getChars().contains(wordChar)) {
                     break;
                 }
                 
                 String word = content.substring(i, j + 1);
                 // 判断是否是脏词
-                if (datCacheNode.getWords().contains(word)) {
+                if (datNode.getWords().contains(word)) {
                 	if (callback.call(word)) {
                 		return true;
                 	}

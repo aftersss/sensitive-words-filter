@@ -1,4 +1,4 @@
-package io.sensitivewords.filter.tire.executor;
+package io.sensitivewords.filter.tire;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * 多叉树模型
  */
-public class TireTreeNode {
+class TireTreeNode {
 
 	private final char _char;
 	private volatile boolean word;

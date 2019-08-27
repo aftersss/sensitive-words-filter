@@ -1,4 +1,4 @@
-package io.sensitivewords.filter.dat.exectuor;
+package io.sensitivewords.filter.dat;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * 双数组脏词缓存节点
  */
-public class DatCacheNode {
+class DatNode {
 
 	//脏字库
     private Set<Character> chars = new HashSet<>();
